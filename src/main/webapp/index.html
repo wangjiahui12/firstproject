@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script type="application/javascript" src="angularjs/angular.min.js"></script>
+</head>
+<script>
+    var app = angular.module('myApp',[]);
+    app.controller('myController',function ($scope,$http) {
+        $scope.findAll = function () {
+            $http.get('getAll.do').success(function (response) {
+                $scope.list=response;
+            })
+        }
+
+        $scope.ids =[];
+        $scope.updateSelection = function ($event,id) {
+            if($event.target.checked){
+                $scope.ids.push(id);
+            }else{
+                //这个是用户取消选择了，我们需要把用户取消的这个id在数组中的位置找出来，下标
+                var index = $scope.ids.indexOf(id);
+                /**
+                 *去按照下标删除，第二个参数，是删除几个，只能删除一个
+                 */
+                $scope.ids.splice(index,1);
+            }
+
+        }
+        $scope.deleteStu = function () {
+            $http.post("dele.do",$scope.ids).success(function (response) {
+                if(response.flag){
+                    $scope.findAll();
+                }else{
+                    alert(response.msg);
+                }
+            })
+        }
+    });
+</script>
+<body ng-app="myApp" ng-controller="myController" ng-init="findAll()">
+<table border="1" rules="all">
+    <tr align="center" bgcolor="#00ffff">
+        <th><input type="checkbox"/></th>
+        <th>编号</th>
+        <th>姓名</th>
+        <th>年龄</th>
+        <th>出生日期</th>
+        <th>毕业院校</th>
+        <th>所属球队</th>
+        <th>操作<input type="button" ng-click="toAdd()" value="新增"/>
+        </th>
+    </tr>
+    <tr align="center" ng-repeat="s in list">
+        <td><input type="checkbox" ng-click="updateSelection($event,s.id)"/></td>
+        <td>{{s.id}}</td>
+        <td>{{s.name}}</td>
+        <td>{{s.age}}</td>
+        <td>{{s.birthday}}</td>
+        <td>{{s.sname}}</td>
+        <td>{{s.tname}}</td>
+    </tr>
+    <tr>
+        <td colspan="100">
+            <input type="button" value="批量删除" ng-click="deleteStu()"/>
+        </td>
+    </tr>
+</table>
+<div id="add" style="display: none">
+    <table border="1" rules="all">
+        <tr align="center">
+            <td>姓名</td>
+            <td>
+                <input type="text" ng-model="stu.name"/>
+            </td>
+        </tr>
+        <tr align="center">
+            <td>价格</td>
+            <td>
+                <input type="number" ng-model="stu.price"/>
+            </td>
+        </tr>
+        <tr align="center">
+            <td>产地</td>
+            <td>
+                <input type="text" ng-model="stu.address"/>
+            </td>
+        </tr>
+        <tr align="center">
+            <td>库存</td>
+            <td>
+                <input type="date" ng-model="stu.kucun"/>
+            </td>
+        </tr>
+        <tr align="center">
+            <td>地址</td>
+            <td>
+                <input type="text" ng-model="stu.cid"/>
+            </td>
+        </tr>
+        <tr align="center">
+            <td colspan="100">
+                请选择:
+                <select ng-change="changepro($event)">
+                    <option value="-1">--请选择省--</option>
+                    <option ng-repeat="p in prolist" ng-value="p.id">{{p.cname}}</option>
+                </select>省-
+            </td>
+        </tr>
+        <tr align="center">
+            <td colspan="100">
+                请选择:
+                <select ng-change="changepro($event)">
+                    <option value="-1">--请选择省--</option>
+                    <option ng-repeat="p in prolist" ng-value="p.id">{{p.cname}}</option>
+                </select>省-
+            </td>
+        </tr>
+        <tr align="center">
+            <td colspan="100">
+                <input type="button" value="保存" ng-click="saveStu()"/>
+            </td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>
